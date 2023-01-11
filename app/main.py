@@ -3,7 +3,7 @@
 import streamlit as st
 import pandas as pd
 
-from pycaret.regression import setup, compare_models, pull, save_model, load_model
+from pycaret.regression import *
 import pandas_profiling
 from streamlit_pandas_profiling import st_profile_report
 
@@ -16,29 +16,30 @@ test = df.drop(train.index)
 with st.sidebar: 
     st.title('Simple autoML app')
     st.image('icon.png')
-    choice = st.radio('Navigation', ['Profiling', 'Modelling', 'Download'])
+    choice = st.radio('Navigation', ['Exploratory Data Analysis', 'Machine learning', 'Download best model'])
     st.info('This project application trains and build a model on the California Housing Dataset.')
 
-if choice == 'Profiling': 
-    st.title('Exploratory Data Analysis')
+if choice == 'Exploratory Data Analysis': 
+    st.title(choice)
     profile_df = train.profile_report()
     st_profile_report(profile_df)
 
-if choice == 'Modelling': 
+if choice == 'Machine learning':
+    st.title(choice) 
     chosen_target = st.selectbox('Choose the Target Column', df.columns)
-    if st.button('Run Modelling'):
 
-        # set up pycaret
-        setup(train, target=chosen_target)
-        setup_df = pull()
-        st.dataframe(setup_df)
-
-        # compare many models and save best
+    # set up pycaret
+    setup(train, target=chosen_target)
+    setup_df = pull()
+    st.dataframe(setup_df)
+    
+    if st.button('Compare different models'):
         best_model = compare_models()
         compare_df = pull()
         st.dataframe(compare_df)
         save_model(best_model, 'best_model')
-
-if choice == 'Download': 
+        
+if choice == 'Download best model':
+    st.title(choice) 
     with open('best_model.pkl', 'rb') as f: 
         st.download_button('Download Model', f, file_name='best_model.pkl')
